@@ -223,25 +223,25 @@ class UserModelsAndControllerTests {
     @Test
     @DirtiesContext
     void test_postWithDuplicateEmailShouldReturn400() throws Exception {
-        User user_1 = new User();
-        user_1.setEmail("aaa@aaa.ru");
-        user_1.setLogin("login");
-        user_1.setName("name");
-        user_1.setBirthday(LocalDate.now());
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
 
-        User user_2 = new User();
-        user_2.setEmail("aaa@aaa.ru");
-        user_2.setLogin("login2");
-        user_2.setName("name");
-        user_2.setBirthday(LocalDate.now());
+        User user2 = new User();
+        user2.setEmail("aaa@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
 
-        String json = objectMapper.writeValueAsString(user_1);
+        String json = objectMapper.writeValueAsString(user1);
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
 
-        json = objectMapper.writeValueAsString(user_2);
+        json = objectMapper.writeValueAsString(user2);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -252,25 +252,25 @@ class UserModelsAndControllerTests {
     @Test
     @DirtiesContext
     void test_postWithDuplicateLoginShouldReturn400() throws Exception {
-        User user_1 = new User();
-        user_1.setEmail("aaa@bbb.ru");
-        user_1.setLogin("login");
-        user_1.setName("name");
-        user_1.setBirthday(LocalDate.now());
+        User user1 = new User();
+        user1.setEmail("aaa@bbb.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
 
-        User user_2 = new User();
-        user_2.setEmail("aaa@aaa.ru");
-        user_2.setLogin("login");
-        user_2.setName("name");
-        user_2.setBirthday(LocalDate.now());
+        User user2 = new User();
+        user2.setEmail("aaa@aaa.ru");
+        user2.setLogin("login");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
 
-        String json = objectMapper.writeValueAsString(user_1);
+        String json = objectMapper.writeValueAsString(user1);
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
 
-        json = objectMapper.writeValueAsString(user_2);
+        json = objectMapper.writeValueAsString(user2);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -400,25 +400,25 @@ class UserModelsAndControllerTests {
     @Test
     @DirtiesContext
     void test_putUpdateDuplicateLoginShouldReturn400() throws Exception {
-        User user_1 = new User();
-        user_1.setEmail("aaa@aaa.ru");
-        user_1.setLogin("login");
-        user_1.setName("name");
-        user_1.setBirthday(LocalDate.now());
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
 
-        User user_2 = new User();
-        user_2.setEmail("bbb@aaa.ru");
-        user_2.setLogin("login2");
-        user_2.setName("name");
-        user_2.setBirthday(LocalDate.now());
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
 
-        String json = objectMapper.writeValueAsString(user_1);
+        String json = objectMapper.writeValueAsString(user1);
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
 
-        json = objectMapper.writeValueAsString(user_2);
+        json = objectMapper.writeValueAsString(user2);
 
         mockMvc.perform(post("/users")
                 .contentType(MediaType.APPLICATION_JSON)

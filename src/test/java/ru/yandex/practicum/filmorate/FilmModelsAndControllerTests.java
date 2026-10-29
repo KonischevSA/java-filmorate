@@ -180,25 +180,25 @@ public class FilmModelsAndControllerTests {
     @Test
     @DirtiesContext
     void test_postDuplicateFilmShouldReturn400() throws Exception {
-        Film film_1 = new Film();
-        film_1.setName("name");
-        film_1.setDescription("description");
-        film_1.setReleaseDate(LocalDate.now().minusYears(1));
-        film_1.setDuration(100);
+        Film film1 = new Film();
+        film1.setName("name");
+        film1.setDescription("description");
+        film1.setReleaseDate(LocalDate.now().minusYears(1));
+        film1.setDuration(100);
 
-        Film film_2 = new Film();
-        film_2.setName("name");
-        film_2.setDescription("description");
-        film_2.setReleaseDate(LocalDate.now().minusYears(1));
-        film_2.setDuration(100);
+        Film film2 = new Film();
+        film2.setName("name");
+        film2.setDescription("description");
+        film2.setReleaseDate(LocalDate.now().minusYears(1));
+        film2.setDuration(100);
 
-        String json = objectMapper.writeValueAsString(film_1);
+        String json = objectMapper.writeValueAsString(film1);
 
         mockMvc.perform(post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
 
-        json = objectMapper.writeValueAsString(film_2);
+        json = objectMapper.writeValueAsString(film2);
 
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -396,25 +396,25 @@ public class FilmModelsAndControllerTests {
     @Test
     @DirtiesContext
     void test_putUpdateDuplicateFilmShouldReturn400() throws Exception {
-        Film film_1 = new Film();
-        film_1.setName("name");
-        film_1.setDescription("description");
-        film_1.setReleaseDate(LocalDate.now().minusYears(1));
-        film_1.setDuration(100);
+        Film film1 = new Film();
+        film1.setName("name");
+        film1.setDescription("description");
+        film1.setReleaseDate(LocalDate.now().minusYears(1));
+        film1.setDuration(100);
 
-        Film film_2 = new Film();
-        film_2.setName("name2");
-        film_2.setDescription("description2");
-        film_2.setReleaseDate(LocalDate.now().minusYears(2));
-        film_2.setDuration(90);
+        Film film2 = new Film();
+        film2.setName("name2");
+        film2.setDescription("description2");
+        film2.setReleaseDate(LocalDate.now().minusYears(2));
+        film2.setDuration(90);
 
-        String json = objectMapper.writeValueAsString(film_1);
+        String json = objectMapper.writeValueAsString(film1);
 
         mockMvc.perform(post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json));
 
-        json = objectMapper.writeValueAsString(film_2);
+        json = objectMapper.writeValueAsString(film2);
 
         mockMvc.perform(post("/films")
                 .contentType(MediaType.APPLICATION_JSON)
