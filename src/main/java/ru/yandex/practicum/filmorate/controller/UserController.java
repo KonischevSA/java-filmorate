@@ -63,7 +63,7 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeFilm(@Valid @PathVariable Long id) {
+    public void removeUser(@Valid @PathVariable Long id) {
         userService.removeUser(id);
     }
 }

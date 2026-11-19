@@ -17,8 +17,10 @@ public class Film {
     @NotBlank(message = "Поле name не может быть пустым.")
     private String name;
     @Size(max = MAX_FILM_DESCRIPTION_LENGTH, message = "Поле description не должно быть больше " + MAX_FILM_DESCRIPTION_LENGTH + " символов.")
+    @NotBlank
     private String description;
     @MatchDate("1895-12-28")
+    @NotNull
     private LocalDate releaseDate;
     @NotNull
     @Positive(message = "Поле duration должно быть положительным целым числом.")
@@ -31,5 +33,10 @@ public class Film {
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
         return Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(duration, film.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, releaseDate, duration);
     }
 }

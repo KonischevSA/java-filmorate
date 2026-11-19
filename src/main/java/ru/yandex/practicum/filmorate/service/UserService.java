@@ -76,6 +76,7 @@ public class UserService {
 
         log.info("Получен запрос на обновление информации о пользователе:\n{}", userUpdateDto);
 
+        //Получили пользователя с id из запроса на обновление
         Optional<User> user = userStorage.findUserById(userUpdateDto.getId());
         log.info("user \n{}", user);
         if (user.isPresent()) {
@@ -92,7 +93,8 @@ public class UserService {
             if (userUpdateDto.getEmail() != null && !userUpdateDto.getEmail().isBlank() && !oldUser.getEmail().equals(userUpdateDto.getEmail())) {
 
                 tmpUser = userStorage.findUserByEmail(userUpdateDto.getEmail());
-                if (tmpUser.isPresent() && Objects.equals(tmpUser.get().getId(), oldUser.getId())) {
+                //Пропустил отрицание во втором условии
+                if (tmpUser.isPresent() && !tmpUser.get().getId().equals(userUpdateDto.getId())) {
                     log.warn("Значение поля email \"{}\" уже используется.", userUpdateDto.getEmail());
                     throw new DuplicatedDataException("Значение поля email " + userUpdateDto.getEmail() + " уже используется.");
                 } else {
@@ -100,10 +102,10 @@ public class UserService {
                 }
             }
             if (userUpdateDto.getLogin() != null && !userUpdateDto.getLogin().isBlank() && !oldUser.getLogin().equals(userUpdateDto.getLogin())) {
+                //Поменял user на tmpUser, что бы было универсально. Работают оба варианта.
+                tmpUser = userStorage.findUserByLogin(userUpdateDto.getLogin());
 
-                user = userStorage.findUserByLogin(userUpdateDto.getLogin());
-
-                if (user.isPresent() && !user.get().getId().equals(userUpdateDto.getId())) {
+                if (tmpUser.isPresent() && !tmpUser.get().getId().equals(userUpdateDto.getId())) {
                     log.warn("Значение поля login \"{}\" уже используется.", userUpdateDto.getLogin());
                     throw new DuplicatedDataException("Значение поля login " + userUpdateDto.getLogin() + " уже используется.");
                 }

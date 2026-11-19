@@ -689,6 +689,48 @@ class UserModelsAndControllerTests {
 
     @Test
     @DirtiesContext
+    void test_putUpdateDuplicateEmailShouldReturn409() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        UserUpdateDto userDto = new UserUpdateDto();
+        userDto.setId(2L);
+        userDto.setEmail("aaa@aaa.ru");
+
+        json = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(put("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().is(409))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DirtiesContext
     void test_putUpdateNameShouldReturnUpdatedUserAndStatus200() throws Exception {
         User user = new User();
         user.setEmail("aaa@aaa.ru");
