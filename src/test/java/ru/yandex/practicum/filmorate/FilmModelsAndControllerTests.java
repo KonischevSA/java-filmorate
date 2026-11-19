@@ -10,6 +10,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmUpdateDto;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -56,6 +57,47 @@ public class FilmModelsAndControllerTests {
         mockMvc.perform(get("/films"))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getFilmWithIdShouldReturn200() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(get("/films/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("name"))
+                .andExpect(jsonPath("$.description").value("description"));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getFilmWithMissingIdShouldReturn404() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(get("/films/2"))
+                .andExpect(status().is(404));
     }
 
     @Test
@@ -179,7 +221,7 @@ public class FilmModelsAndControllerTests {
 
     @Test
     @DirtiesContext
-    void test_postDuplicateFilmShouldReturn400() throws Exception {
+    void test_postDuplicateFilmShouldReturn409() throws Exception {
         Film film1 = new Film();
         film1.setName("name");
         film1.setDescription("description");
@@ -203,7 +245,7 @@ public class FilmModelsAndControllerTests {
         mockMvc.perform(post("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is(400));
+                .andExpect(status().is(409));
     }
 
     @Test
@@ -395,7 +437,7 @@ public class FilmModelsAndControllerTests {
 
     @Test
     @DirtiesContext
-    void test_putUpdateDuplicateFilmShouldReturn400() throws Exception {
+    void test_putUpdateDuplicateFilmShouldReturn409() throws Exception {
         Film film1 = new Film();
         film1.setName("name");
         film1.setDescription("description");
@@ -432,7 +474,7 @@ public class FilmModelsAndControllerTests {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is(400));
+                .andExpect(status().is(409));
     }
 
     @Test
@@ -459,6 +501,230 @@ public class FilmModelsAndControllerTests {
         mockMvc.perform(put("/films")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFilmShouldReturn204() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(delete("/films/1"))
+                .andExpect(status().is(204));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFilmWithWrongIdShouldReturn404() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(delete("/films/2"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putLikeShouldReturn200() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        user = new User();
+        user.setEmail("bbb@aaa.ru");
+        user.setLogin("login2");
+        user.setName("name2");
+        user.setBirthday(LocalDate.now().minusDays(1));
+
+        json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.likes[0]").value(1));
+
+        mockMvc.perform(put("/films/1/like/2"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.likes[1]").value(2));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putLikeWithMissingFilmShouldReturn404() throws Exception {
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putLikeWithMissingUserShouldReturn404() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteLikeShouldReturn200() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"));
+
+        mockMvc.perform(delete("/films/1/like/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.likes.length()").value(0));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteLikeWithMissingFilmShouldReturn404() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"));
+
+        mockMvc.perform(delete("/films/2/like/1"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteLikeWithMissingUserShouldReturn404() throws Exception {
+        Film film = new Film();
+        film.setName("name");
+        film.setDescription("description");
+        film.setReleaseDate(LocalDate.now().minusYears(1));
+        film.setDuration(100);
+
+        String json = objectMapper.writeValueAsString(film);
+
+        mockMvc.perform(post("/films")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/films/1/like/1"));
+
+        mockMvc.perform(delete("/films/1/like/2"))
                 .andExpect(status().is(404));
     }
 }

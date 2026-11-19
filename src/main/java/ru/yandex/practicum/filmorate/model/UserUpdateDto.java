@@ -9,12 +9,12 @@ import java.time.LocalDate;
 public class UserUpdateDto {
     @NotNull
     @Positive
-    Long id;
+    private Long id;
     @Email(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Неверный формат поля email.")
-    String email;
+    private String email;
     @Pattern(regexp = "^[a-zA-Z0-9_]*$", message = "Поле login содержит недопустимые символы.")
-    String login;
-    String name;
+    private String login;
+    private String name;
     @PastOrPresent(message = "Поле birthday не может быть больше текущей даты.")
-    LocalDate birthday;
+    private LocalDate birthday;
 }

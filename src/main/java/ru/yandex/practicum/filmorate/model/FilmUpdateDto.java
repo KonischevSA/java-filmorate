@@ -12,12 +12,12 @@ import java.time.LocalDate;
 public class FilmUpdateDto {
     @NotNull
     @Positive
-    Long id;
-    String name;
+    private Long id;
+    private String name;
     @Size(max = Film.MAX_FILM_DESCRIPTION_LENGTH, message = "Поле description не должно быть больше " + Film.MAX_FILM_DESCRIPTION_LENGTH + " символов.")
-    String description;
+    private String description;
     @MatchDate("1895-12-28")
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
     @Positive(message = "Поле duration должно быть положительным целым числом.")
-    Integer duration;
+    private Integer duration;
 }

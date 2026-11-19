@@ -5,19 +5,38 @@ import lombok.Data;
 import ru.yandex.practicum.filmorate.customAnnotations.MatchDate;
 
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Data
 public class Film {
     public static final int MAX_FILM_DESCRIPTION_LENGTH = 200;
     @Positive
-    Long id;
+    private Long id;
     @NotBlank(message = "Поле name не может быть пустым.")
-    String name;
+    private String name;
     @Size(max = MAX_FILM_DESCRIPTION_LENGTH, message = "Поле description не должно быть больше " + MAX_FILM_DESCRIPTION_LENGTH + " символов.")
-    String description;
+    @NotBlank
+    private String description;
     @MatchDate("1895-12-28")
-    LocalDate releaseDate;
+    @NotNull
+    private LocalDate releaseDate;
     @NotNull
     @Positive(message = "Поле duration должно быть положительным целым числом.")
-    Integer duration;
+    private Integer duration;
+
+    private Set<Long> likes = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return Objects.equals(name, film.name) && Objects.equals(description, film.description) && Objects.equals(releaseDate, film.releaseDate) && Objects.equals(duration, film.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, releaseDate, duration);
+    }
 }

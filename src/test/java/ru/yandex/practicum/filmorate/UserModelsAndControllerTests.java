@@ -16,9 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -58,6 +56,256 @@ class UserModelsAndControllerTests {
         mockMvc.perform(get("/users"))
                 .andExpect(status().is(200))
                 .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserByIdShouldReturn200() throws Exception {
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("aaa@aaa.ru"))
+                .andExpect(jsonPath("$.login").value("login"))
+                .andExpect(jsonPath("$.name").value("name"));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserWithMissingIdShouldReturn404() throws Exception {
+        User user = new User();
+        user.setEmail("aaa@aaa.ru");
+        user.setLogin("login");
+        user.setName("name");
+        user.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(get("/users/2"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserFriendsShouldReturn200() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(get("/users/2/friends"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].friends.length()").value(1))
+                .andExpect(jsonPath("$[0].friends[0]").value(2));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserFriendsWithMissingUserIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(get("/users/3/friends"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserCommonFriendsShouldReturn200() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        User user3 = new User();
+        user3.setEmail("ccc@aaa.ru");
+        user3.setLogin("login3");
+        user3.setName("name");
+        user3.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user3);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+        mockMvc.perform(put("/users/1/friends/3"));
+
+        mockMvc.perform(get("/users/2/friends/common/3"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$[0].id").value(1));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserCommonFriendsWithMissingUserIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        User user3 = new User();
+        user3.setEmail("ccc@aaa.ru");
+        user3.setLogin("login3");
+        user3.setName("name");
+        user3.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user3);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+        mockMvc.perform(put("/users/1/friends/3"));
+
+        mockMvc.perform(get("/users/5/friends/common/3"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_getUserCommonFriendsWithMissingOtherUserIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        User user3 = new User();
+        user3.setEmail("ccc@aaa.ru");
+        user3.setLogin("login3");
+        user3.setName("name");
+        user3.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user3);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+        mockMvc.perform(put("/users/1/friends/3"));
+
+        mockMvc.perform(get("/users/2/friends/common/5"))
+                .andExpect(status().is(404));
     }
 
     @Test
@@ -222,7 +470,7 @@ class UserModelsAndControllerTests {
 
     @Test
     @DirtiesContext
-    void test_postWithDuplicateEmailShouldReturn400() throws Exception {
+    void test_postWithDuplicateEmailShouldReturn409() throws Exception {
         User user1 = new User();
         user1.setEmail("aaa@aaa.ru");
         user1.setLogin("login");
@@ -246,12 +494,12 @@ class UserModelsAndControllerTests {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is(400));
+                .andExpect(status().is(409));
     }
 
     @Test
     @DirtiesContext
-    void test_postWithDuplicateLoginShouldReturn400() throws Exception {
+    void test_postWithDuplicateLoginShouldReturn409() throws Exception {
         User user1 = new User();
         user1.setEmail("aaa@bbb.ru");
         user1.setLogin("login");
@@ -275,7 +523,7 @@ class UserModelsAndControllerTests {
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is(400));
+                .andExpect(status().is(409));
     }
 
     @Test
@@ -399,7 +647,7 @@ class UserModelsAndControllerTests {
 
     @Test
     @DirtiesContext
-    void test_putUpdateDuplicateLoginShouldReturn400() throws Exception {
+    void test_putUpdateDuplicateLoginShouldReturn409() throws Exception {
         User user1 = new User();
         user1.setEmail("aaa@aaa.ru");
         user1.setLogin("login");
@@ -433,7 +681,49 @@ class UserModelsAndControllerTests {
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().is(400))
+                .andExpect(status().is(409))
+                .andReturn()
+                .getResponse()
+                .getContentAsString(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putUpdateDuplicateEmailShouldReturn409() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        UserUpdateDto userDto = new UserUpdateDto();
+        userDto.setId(2L);
+        userDto.setEmail("aaa@aaa.ru");
+
+        json = objectMapper.writeValueAsString(userDto);
+
+        mockMvc.perform(put("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().is(409))
                 .andReturn()
                 .getResponse()
                 .getContentAsString(StandardCharsets.UTF_8);
@@ -531,6 +821,323 @@ class UserModelsAndControllerTests {
         mockMvc.perform(put("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putFriendShouldReturn200() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.friends.length()").value(1))
+                .andExpect(jsonPath("$.friends[0]").value(2));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putFriendWithMissingUserIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/3/friends/2"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putFriendWithMissingFriendIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/3"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_putFriendWithEqualsUserIdAndFriendIdShouldReturn409() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/1"))
+                .andExpect(status().is(409));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFriendShouldReturn200() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(delete("/users/1/friends/2"))
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.friends.length()").value(0));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFriendWithMissingUserIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(delete("/users/3/friends/2"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFriendWithMissingFriendIdShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(delete("/users/1/friends/3"))
+                .andExpect(status().is(404));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteFriendWithEqualsUserIdAndFriendIdShouldReturn409() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(delete("/users/1/friends/1"))
+                .andExpect(status().is(409));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteUserShouldReturn204() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        User user2 = new User();
+        user2.setEmail("bbb@aaa.ru");
+        user2.setLogin("login2");
+        user2.setName("name");
+        user2.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        json = objectMapper.writeValueAsString(user2);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(put("/users/1/friends/2"));
+
+        mockMvc.perform(get("/users/2"))
+                .andExpect(jsonPath("$.friends.length()").value(1));
+
+        mockMvc.perform(delete("/users/1"))
+                .andExpect(status().is(204));
+
+        mockMvc.perform(get("/users/2"))
+                .andExpect(jsonPath("$.friends.length()").value(0));
+    }
+
+    @Test
+    @DirtiesContext
+    void test_deleteUserWithMissingShouldReturn404() throws Exception {
+        User user1 = new User();
+        user1.setEmail("aaa@aaa.ru");
+        user1.setLogin("login");
+        user1.setName("name");
+        user1.setBirthday(LocalDate.now());
+
+        String json = objectMapper.writeValueAsString(user1);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json));
+
+        mockMvc.perform(delete("/users/2"))
                 .andExpect(status().is(404));
     }
 }
